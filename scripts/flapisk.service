@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve flapisk backend service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/flapisk/backend
+Environment="PATH=/var/www/flapisk/backend/env/bin"
+ExecStart=/var/www/flapisk/backend/env/bin/uwsgi --ini /var/www/flapisk/backend/flapisk.ini
+
+[Install]
+WantedBy=multi-user.target

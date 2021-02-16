@@ -35,19 +35,22 @@ def create_app(config_obj=None):
     from src.services.jwt import jwt
     jwt.init_app(app)
 
+    from src.services.flagger import swagger
+    swagger.init_app(app)
+
     # Router service
     from src.routes import api_router
     api_router.init_app(app)
 
-    from src.resources.auth import SignInResource, SignUpResource, SignOutResource, TokenRefreshResource,\
+    from src.resources.auth import SignInResource, SignUpResource, SignOutResource, TokenRefreshResource, \
         UserVerifyResource, ResendVerifyEmailResource, UpdateEmailResource
     api_router.add_resource(SignInResource, "/auth/sign-in")
     api_router.add_resource(SignUpResource, "/auth/sign-up")
     api_router.add_resource(SignOutResource, "/auth/sign-out")
     api_router.add_resource(TokenRefreshResource, "/auth/refresh")
-    api_router.add_resource(UserVerifyResource, "/auth/email/verify", methods=['POST'])
-    api_router.add_resource(ResendVerifyEmailResource, "/auth/email/resend", methods=['POST'])
-    api_router.add_resource(UpdateEmailResource, "/auth/email/update", methods=['POST'])
+    api_router.add_resource(UserVerifyResource, "/auth/verify/<verifyToken>", methods=['GET'])
+    api_router.add_resource(ResendVerifyEmailResource, "/auth/email-resend/<email>", methods=['GET'])
+    api_router.add_resource(UpdateEmailResource, "/auth/email-update/<old_email>/<new_email>", methods=['GET'])
 
     from src.resources.profile import GetProfileResource, UpdateProfileResource, \
         PasswordResetResource, CloseProfileResource

@@ -1,0 +1,39 @@
+service: flapisk-service
+
+provider:
+  name: aws
+  runtime: python3.8
+  memorySize: 1024
+  stage: dev
+  region: us-east-2
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "ses:*"
+      Resource: "arn:aws:ses:${self:provider.region}:*:*"
+
+custom: ${file(./custom.yml)}
+
+package:
+  include:
+    - psycopg2/**
+  exclude:
+    - env/**
+    - venv/**
+    - node_modules/**
+    - migrations/**
+
+
+functions:
+  app:
+    handler: wsgi_handler.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+
+
+plugins:
+  - serverless-wsgi
+  - serverless-python-requirements
+  - serverless-prune-plugin
+  - serverless-pseudo-parameters

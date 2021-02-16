@@ -13,4 +13,3 @@ def verify_hash(password, phrase):
 def generate_password(length):
     characters = string.ascii_lowercase + string.ascii_uppercase + string.digits + '!#$%&@'
     return ''.join(secrets.choice(characters) for i in range(length))
-

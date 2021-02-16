@@ -56,7 +56,7 @@ class UpdateUserResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('email', required=True, help='Email required!')
         parser.add_argument('password', required=True, help='Password required!')
-        roles = ("Admin", "User")
+        roles = ("Admin", "User", "Developer")
         parser.add_argument('role', choices=roles, required=True, help='Invalid role!')
         parser.add_argument('first_name')
         parser.add_argument('last_name')

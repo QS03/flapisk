@@ -5,7 +5,6 @@ requests and return responses on the Flask server.
 """
 from flask import Blueprint, current_app, jsonify
 from flask_restful import Api, Resource
-from flask_restful_swagger import swagger
 
 
 class ApiRouter:

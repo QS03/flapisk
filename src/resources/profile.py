@@ -13,6 +13,23 @@ from src.utils.hash import generate_hash, verify_hash
 class GetProfileResource(Resource):
     @jwt_required
     def get(self):
+        """
+        Get profile
+        ---
+        tags:
+          - profile
+        description: Get logged in user's profile.
+        operationId: getUserProfile
+        security:
+          - bearerAuth: []
+        responses:
+          200:
+            description: Success
+          401:
+            description: Unauthorized.
+          500:
+            description: Internal server error
+        """
         try:
             email = get_jwt_identity()
             user = UserModel.get_first([
@@ -33,9 +50,57 @@ class GetProfileResource(Resource):
 class UpdateProfileResource(Resource):
     @jwt_required
     def put(self):
+        """
+        Update profile
+        ---
+        tags:
+          - profile
+        description: Update profile with user information
+        operationId: profileUpdate
+        security:
+          - bearerAuth: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  role:
+                    type: string
+                    enum:
+                      - User
+                      - Developer
+                      - Admin
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  phone_number:
+                    type: string
+                required:
+                  - email
+                  - role
+                example:
+                  email: user@mail.com
+                  role: User
+                  first_name: Test
+                  last_name: User
+                  phone_number: (234)567-8901
+          description: email and role must be specified.
+          required: true
+        responses:
+            200:
+              description: Profile updated
+            404:
+              description: User not found
+            500:
+              description: Internal server error
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('email', required=True, help='Email required!')
-        roles = ("Admin", "User")
+        roles = ("Admin", "User", "Developer")
         parser.add_argument('role', choices=roles, required=True, help='Invalid role!')
         parser.add_argument('first_name')
         parser.add_argument('last_name')
@@ -68,6 +133,51 @@ class UpdateProfileResource(Resource):
 class PasswordResetResource(Resource):
     @jwt_required
     def post(self):
+        """
+        Password Reset
+        ---
+        tags:
+          - profile
+        description: Update old password with a new one.
+        operationId: resetPassword
+        security:
+          - bearerAuth: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  current_password:
+                    type: string
+                  new_password:
+                    type: string
+                  confirm_password:
+                    type: string
+                required:
+                  - email
+                  - current_password
+                  - new_password
+                  - confirm_password
+                example:
+                  email: user@mail.com
+                  current_password: secret
+                  new_password: new_secret
+                  confirm_password: new_secret
+          description: All fields must be specified.
+          required: true
+        responses:
+            200:
+              description: Password updated.
+            400:
+              description: Current password incorrect or confirm password not match.
+            404:
+              description: User not found
+            500:
+              description: Internal server error
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('email', required=True, help='Email required!')
         parser.add_argument('current_password', required=True, help='Current password required!')
@@ -102,11 +212,37 @@ class PasswordResetResource(Resource):
 class CloseProfileResource(Resource):
     @jwt_required
     def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('email', required=True, help='Email required!')
-        parser.add_argument('active', type=bool)
-        data = parser.parse_args()
-
+        """
+        Close Account
+        ---
+        tags:
+          - profile
+        description: Close account.
+        operationId: closeAccount
+        security:
+          - bearerAuth: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                required:
+                  - email
+                example:
+                  email: user@mail.com
+          description: Email must be specified.
+          required: true
+        responses:
+            204:
+              description: Account closed.
+            404:
+              description: User not found
+            500:
+              description: Internal server error
+        """
         try:
             email = get_jwt_identity()
             user = UserModel.get_first([
@@ -115,18 +251,11 @@ class CloseProfileResource(Resource):
             if user is None:
                 return APIResponse.error_404("User not found")
 
-            if data['active'] is None:
-                return APIResponse.error_400()
+            user.active = False
+            user.save()
 
-            if not data['active']:
-                user.active = False
-                user.save()
-
-                response = {'message': "User deactivated!"}
-                return APIResponse.success_204(response)
-            else:
-                return APIResponse.error_403("Already deactivated!")
-
+            response = {'message': "User deactivated!"}
+            return APIResponse.success_204(response)
         except Exception as e:
             print(e)
             return APIResponse.error_500()

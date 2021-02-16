@@ -1,0 +1,9 @@
+wsgi:
+    app: app.app
+    pythonBin: python3.8 # Some systems with Python3 may require this
+    packRequirements: false # we'll be using the serverless-python-requirements plugin mentioned above in order to do this so we can leave this as false.
+
+pythonRequirements:
+    # dockerImage: lambci/lambda:build-python3.8
+    # dockerizePip: true
+    fileName: ./requirements.txt

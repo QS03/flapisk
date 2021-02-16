@@ -9,6 +9,7 @@ from datetime import datetime
 class UserRole(Enum):
     ADMIN = "Admin"
     USER = "User"
+    DEVELOPER = "Developer"
 
     @classmethod
     def role(cls, role):
@@ -16,6 +17,8 @@ class UserRole(Enum):
             return cls.ADMIN
         elif role == "User":
             return cls.USER
+        elif role == "Developer":
+            return cls.DEVELOPER
         else:
             return "Invalid Role"
 

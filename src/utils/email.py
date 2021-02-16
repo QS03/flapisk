@@ -7,12 +7,15 @@ from flask import current_app as app
 
 
 def send_email_ses(ToAddresses, Source, Message):
-    client = boto3.client(
-        'ses',
-        region_name=app.config['AWS_REGION'],
-        aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
-        aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY']
-    )
+    if 'AWS_EXECUTION_ENV' in os.environ:
+        client = boto3.client('ses')
+    else:
+        client = boto3.client(
+            'ses',
+            region_name=app.config['AWS_REGION'],
+            aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY']
+        )
 
     # Provide the contents of the email.
     response = client.send_email(
